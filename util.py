@@ -426,7 +426,7 @@ def load_data_n_model(dataset_name, model_name, root):
     elif dataset_name == 'MyDataset':
         print('using dataset: MyDataset')
 
-        data_root = os.path.join(root, 'MyData_HAR')
+        data_root = os.path.join(root, 'MyData_HAR/data')
         x_path = os.path.join(data_root, 'x_{}.npy')
         y_path = os.path.join(data_root, 'y_{}.npy')
 
