@@ -30,32 +30,30 @@ import torch.nn.functional as F
 
 class MyData_LeNet(nn.Module):
     def __init__(self, num_classes):
-        super(MyData_LeNet, self).__init__()
+        super().__init__()
         self.encoder = nn.Sequential(
-            nn.Conv2d(1, 32, 5, stride=2),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, 3, stride=1),
-            nn.ReLU(),
+            nn.Conv2d(1, 32, kernel_size=7, stride=(3, 3)),
+            nn.ReLU(True),
             nn.MaxPool2d(2),
-            nn.Conv2d(64, 96, 3),
-            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=5, stride=2, padding=1),
+            nn.ReLU(True),
+            nn.MaxPool2d(2),
+            nn.Conv2d(64, 96, kernel_size=3, stride=1),
+            nn.ReLU(True),
+            nn.MaxPool2d(2)
         )
-
-        # Dummy forward pass to compute flattened size
-        with torch.no_grad():
-            dummy = torch.zeros(1, 1, 64, 64)
-            encoded = self.encoder(dummy)
-            flattened_size = encoded.view(1, -1).shape[1]
-
+        # NOTE: flatten dim depends on input (200x4004). 
+        # Will use adaptive pooling to make it robust.
         self.fc = nn.Sequential(
-            nn.Linear(flattened_size, 128),
+            nn.Linear(96*4*4, 128),  
             nn.ReLU(),
             nn.Linear(128, num_classes)
         )
 
-    def forward(self, x):
+    def forward(self, x):           # x: (B, 200, 4004)
+        x = x.unsqueeze(1)          # (B, 1, 200, 4004)
         x = self.encoder(x)
-        x = x.view(x.size(0), -1)
+        x = torch.flatten(x, 1)     # (B, features)
         return self.fc(x)
 
 
@@ -172,14 +170,17 @@ def MyData_ResNet101(num_classes):
 #         return self.fc(h_n[-1])
 
 class MyData_GRU(nn.Module):
-    def __init__(self, num_classes):
-        super(MyData_GRU, self).__init__()
-        self.gru = nn.GRU(input_size=4096, hidden_size=128, num_layers=1, batch_first=True)
-        self.fc = nn.Linear(128, num_classes)
+    def __init__(self, num_classes, input_dim=4004, reduced_dim=512, hidden_dim=128):
+        super().__init__()
+        self.reduce = nn.Linear(input_dim, reduced_dim)
+        self.gru = nn.GRU(input_size=reduced_dim, hidden_size=hidden_dim, num_layers=1, batch_first=True)
+        self.fc = nn.Linear(hidden_dim, num_classes)
 
-    def forward(self, x):  # x: (B, 100, 4096)
-        _, h_n = self.gru(x)
-        return self.fc(h_n[-1])
+    def forward(self, x):          # x: (B, 200, 4004)
+        x = self.reduce(x)         # (B, 200, 512)
+        _, h_n = self.gru(x)       # h_n: (1, B, 128)
+        return self.fc(h_n[-1])    # (B, num_classes)
+
 
 
 
