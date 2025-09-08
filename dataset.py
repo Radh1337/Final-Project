@@ -100,51 +100,51 @@ class Widar_Dataset(Dataset):
         return x,y
 
 
-class MyCSIDataset(Dataset):
-    def __init__(self, data_path, label_path, mode='flat', transform=None, time_steps=100):
-        self.data = np.load(data_path)   # shape: (N, 100, 4004) or (N, 4004)
-        self.labels = np.load(label_path)
-        self.transform = transform
-        self.mode = mode
-        self.time_steps = time_steps
-        self.max_features = 4096
+# class MyCSIDataset(Dataset):
+#     def __init__(self, data_path, label_path, mode='flat', transform=None, time_steps=100):
+#         self.data = np.load(data_path)   # shape: (N, 100, 4004) or (N, 4004)
+#         self.labels = np.load(label_path)
+#         self.transform = transform
+#         self.mode = mode
+#         self.time_steps = time_steps
+#         self.max_features = 4096
 
-        if mode == 'cnn':
-            # Frame-level classification (1 frame per sample)
-            if self.data.shape[1] != self.max_features:
-                self.data = np.pad(self.data, ((0, 0), (0, self.max_features - self.data.shape[1])))
-            self.data = self.data.reshape(-1, 1, 64, 64)  # (N, 1, 64, 64)
+#         if mode == 'cnn':
+#             # Frame-level classification (1 frame per sample)
+#             if self.data.shape[1] != self.max_features:
+#                 self.data = np.pad(self.data, ((0, 0), (0, self.max_features - self.data.shape[1])))
+#             self.data = self.data.reshape(-1, 1, 64, 64)  # (N, 1, 64, 64)
 
-        elif mode == 'snn':
-            # Segment-level classification for SNNs: (N, T, 4096) → (N, T, 1, 64, 64)
-            if self.data.shape[2] != self.max_features:
-                self.data = np.pad(self.data, ((0, 0), (0, 0), (0, self.max_features - self.data.shape[2])))
-            self.data = self.data.reshape(-1, self.time_steps, 1, 64, 64)
+#         elif mode == 'snn':
+#             # Segment-level classification for SNNs: (N, T, 4096) → (N, T, 1, 64, 64)
+#             if self.data.shape[2] != self.max_features:
+#                 self.data = np.pad(self.data, ((0, 0), (0, 0), (0, self.max_features - self.data.shape[2])))
+#             self.data = self.data.reshape(-1, self.time_steps, 1, 64, 64)
 
-        elif mode == 'rnn':
-            # Segment-level for GRU: shape = (N, T, 4096)
-            if self.data.shape[2] != self.max_features:
-                self.data = np.pad(self.data, ((0, 0), (0, 0), (0, self.max_features - self.data.shape[2])))
+#         elif mode == 'rnn':
+#             # Segment-level for GRU: shape = (N, T, 4096)
+#             if self.data.shape[2] != self.max_features:
+#                 self.data = np.pad(self.data, ((0, 0), (0, 0), (0, self.max_features - self.data.shape[2])))
 
-        elif mode == 'flat':
-            # Keep as is (e.g., (N, 4004) or (N, 4096))
-            pass
+#         elif mode == 'flat':
+#             # Keep as is (e.g., (N, 4004) or (N, 4096))
+#             pass
 
-        else:
-            raise ValueError(f"Unknown mode: {mode}")
+#         else:
+#             raise ValueError(f"Unknown mode: {mode}")
 
-        self.data = torch.tensor(self.data, dtype=torch.float32)
-        self.labels = torch.tensor(self.labels, dtype=torch.long)
+#         self.data = torch.tensor(self.data, dtype=torch.float32)
+#         self.labels = torch.tensor(self.labels, dtype=torch.long)
 
-    def __len__(self):
-        return len(self.data)
+#     def __len__(self):
+#         return len(self.data)
 
-    def __getitem__(self, idx):
-        x = self.data[idx]
-        y = self.labels[idx]
-        if self.transform:
-            x = self.transform(x)
-        return x, y
+#     def __getitem__(self, idx):
+#         x = self.data[idx]
+#         y = self.labels[idx]
+#         if self.transform:
+#             x = self.transform(x)
+#         return x, y
 
 # class MyCSIDataset(Dataset):
 #     def __init__(self, data_path, label_path, mode='flat', transform=None):
@@ -176,6 +176,20 @@ class MyCSIDataset(Dataset):
 #         if self.transform:
 #             x = self.transform(x)
 #         return x, y
+
+class MyCSIDataset(torch.utils.data.Dataset):
+    def __init__(self, data_path, label_path):
+        self.data = np.load(data_path)   # (N, 200, 4004)
+        self.labels = np.load(label_path)
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        x = self.data[idx]   # (200, 4004)
+        y = self.labels[idx]
+        return torch.tensor(x, dtype=torch.float32), torch.tensor(y, dtype=torch.long)
+
 
 class OTFSegmentDataset(Dataset):
     def __init__(self, frame_data_path, frame_label_path,

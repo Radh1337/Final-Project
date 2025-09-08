@@ -279,68 +279,68 @@ def load_data_n_model(dataset_name, model_name, root):
     #         raise ValueError(f"Unsupported model: {model_name}")
     #     return train_loader, test_loader, model, train_epoch
     
-    elif dataset_name == 'MyDataset':
-        print('using dataset: MyDataset')
+    # elif dataset_name == 'MyDataset':
+    #     print('using dataset: MyDataset')
 
-        cnn_models = ['LeNet', 'ResNet18', 'ResNet50', 'ResNet101']
-        # segment_models = ['GRU', 'CNN+GRU', 'SNN']
+    #     cnn_models = ['LeNet', 'ResNet18', 'ResNet50', 'ResNet101']
+    #     # segment_models = ['GRU', 'CNN+GRU', 'SNN']
 
-        if model_name in cnn_models:
-            mode = 'cnn'
-            prefix = 'frame'
-        elif model_name == 'GRU':
-            mode = 'rnn'
-            prefix = 'segment'
-        elif model_name in ['CNN+GRU', 'SNN']:
-            mode = 'snn'
-            prefix = 'segment'
-        else:
-            raise ValueError(f"Unsupported model: {model_name}")
+    #     if model_name in cnn_models:
+    #         mode = 'cnn'
+    #         prefix = 'frame'
+    #     elif model_name == 'GRU':
+    #         mode = 'rnn'
+    #         prefix = 'segment'
+    #     elif model_name in ['CNN+GRU', 'SNN']:
+    #         mode = 'snn'
+    #         prefix = 'segment'
+    #     else:
+    #         raise ValueError(f"Unsupported model: {model_name}")
 
-        data_root = os.path.join(root, 'MyData_HAR')
-        data_path = os.path.join(data_root, f'{prefix}_{{}}.npy')
-        label_path = os.path.join(data_root, f'y_{prefix}_{{}}.npy')
+    #     data_root = os.path.join(root, 'MyData_HAR')
+    #     data_path = os.path.join(data_root, f'{prefix}_{{}}.npy')
+    #     label_path = os.path.join(data_root, f'y_{prefix}_{{}}.npy')
 
-        train_set = MyCSIDataset(data_path.format('train'), label_path.format('train'), mode=mode)
-        val_set = MyCSIDataset(data_path.format('val'), label_path.format('val'), mode=mode)
-        test_set = MyCSIDataset(data_path.format('test'), label_path.format('test'), mode=mode)
+    #     train_set = MyCSIDataset(data_path.format('train'), label_path.format('train'), mode=mode)
+    #     val_set = MyCSIDataset(data_path.format('val'), label_path.format('val'), mode=mode)
+    #     test_set = MyCSIDataset(data_path.format('test'), label_path.format('test'), mode=mode)
 
-        train_loader = DataLoader(train_set, batch_size=64, shuffle=True, num_workers=2)
-        test_loader = DataLoader(ConcatDataset([val_set, test_set]), batch_size=128, shuffle=False, num_workers=2)
+    #     train_loader = DataLoader(train_set, batch_size=64, shuffle=True, num_workers=2)
+    #     test_loader = DataLoader(ConcatDataset([val_set, test_set]), batch_size=128, shuffle=False, num_workers=2)
 
-        num_classes = classes['MyDataset']
+    #     num_classes = classes['MyDataset']
 
-        if model_name == 'LeNet':
-            print("using model: LeNet")
-            model = MyData_LeNet(num_classes)
-            train_epoch = 30
-        elif model_name == 'ResNet18':
-            print("using model: ResNet18")
-            model = MyData_ResNet18(num_classes)
-            train_epoch = 30
-        elif model_name == 'ResNet50':
-            print("using model: ResNet50")
-            model = MyData_ResNet50(num_classes)
-            train_epoch = 30
-        elif model_name == 'ResNet101':
-            print("using model: ResNet101")
-            model = MyData_ResNet101(num_classes)
-            train_epoch = 30
-        elif model_name == 'GRU':
-            print("using model: GRU")
-            model = MyData_GRU(num_classes)
-            train_epoch = 30
-        elif model_name == 'CNN+GRU':
-            print("using model: CNN+GRU")
-            model = MyData_CNN_GRU(num_classes)
-            train_epoch = 30
-        elif model_name == 'SNN':
-            print("using model: SNN")
-            model = MyData_SNN(num_classes)
-            train_epoch = 30
-        else:
-            raise ValueError(f"Unsupported model: {model_name}")
-        return train_loader, test_loader, model, train_epoch
+    #     if model_name == 'LeNet':
+    #         print("using model: LeNet")
+    #         model = MyData_LeNet(num_classes)
+    #         train_epoch = 30
+    #     elif model_name == 'ResNet18':
+    #         print("using model: ResNet18")
+    #         model = MyData_ResNet18(num_classes)
+    #         train_epoch = 30
+    #     elif model_name == 'ResNet50':
+    #         print("using model: ResNet50")
+    #         model = MyData_ResNet50(num_classes)
+    #         train_epoch = 30
+    #     elif model_name == 'ResNet101':
+    #         print("using model: ResNet101")
+    #         model = MyData_ResNet101(num_classes)
+    #         train_epoch = 30
+    #     elif model_name == 'GRU':
+    #         print("using model: GRU")
+    #         model = MyData_GRU(num_classes)
+    #         train_epoch = 30
+    #     elif model_name == 'CNN+GRU':
+    #         print("using model: CNN+GRU")
+    #         model = MyData_CNN_GRU(num_classes)
+    #         train_epoch = 30
+    #     elif model_name == 'SNN':
+    #         print("using model: SNN")
+    #         model = MyData_SNN(num_classes)
+    #         train_epoch = 30
+    #     else:
+    #         raise ValueError(f"Unsupported model: {model_name}")
+    #     return train_loader, test_loader, model, train_epoch
 
     # elif dataset_name == 'MyDataset':
     #     print('using dataset: MyDataset')
@@ -422,6 +422,34 @@ def load_data_n_model(dataset_name, model_name, root):
 
     #     train_epoch = 30
     #     return train_loader, test_loader, model, train_epoch
+
+    elif dataset_name == 'MyDataset':
+        print('using dataset: MyDataset')
+
+        data_root = os.path.join(root, 'MyData_HAR')
+        x_path = os.path.join(data_root, 'x_{}.npy')
+        y_path = os.path.join(data_root, 'y_{}.npy')
+
+        train_set = MyCSIDataset(x_path.format('train'), y_path.format('train'))
+        val_set   = MyCSIDataset(x_path.format('val'),   y_path.format('val'))
+        test_set  = MyCSIDataset(x_path.format('test'),  y_path.format('test'))
+
+        train_loader = DataLoader(train_set, batch_size=64, shuffle=True, num_workers=2)
+        val_loader   = DataLoader(val_set, batch_size=128, shuffle=False, num_workers=2)
+        test_loader  = DataLoader(test_set, batch_size=128, shuffle=False, num_workers=2)
+
+        num_classes = classes['MyDataset']
+
+        if model_name == 'LeNet':
+            print("using model: LeNet")
+            model = MyData_LeNet(num_classes)
+        elif model_name == 'GRU':
+            print("using model: GRU")
+            model = MyData_GRU(num_classes, input_dim=4004, reduced_dim=512, hidden_dim=128)
+        # same idea for ResNet, CNN+GRU, etc.
+
+        train_epoch = 30
+        return train_loader, val_loader, test_loader, model, train_epoch
 
 
 
