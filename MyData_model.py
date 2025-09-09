@@ -40,21 +40,21 @@ class MyData_LeNet(nn.Module):
             nn.MaxPool2d(2),
             nn.Conv2d(64, 96, kernel_size=3, stride=1),
             nn.ReLU(True),
-            nn.MaxPool2d(2)
+            nn.MaxPool2d(2),
+            nn.AdaptiveAvgPool2d((4, 4))   # <--- Force final shape (96, 4, 4)
         )
-        # NOTE: flatten dim depends on input (200x4004). 
-        # Will use adaptive pooling to make it robust.
         self.fc = nn.Sequential(
-            nn.Linear(96*4*4, 128),  
+            nn.Linear(96*4*4, 128),
             nn.ReLU(),
             nn.Linear(128, num_classes)
         )
 
-    def forward(self, x):           # x: (B, 200, 4004)
-        x = x.unsqueeze(1)          # (B, 1, 200, 4004)
-        x = self.encoder(x)
-        x = torch.flatten(x, 1)     # (B, features)
+    def forward(self, x):          # x: (B, 200, 4004)
+        x = x.unsqueeze(1)         # (B, 1, 200, 4004)
+        x = self.encoder(x)        # (B, 96, 4, 4)
+        x = torch.flatten(x, 1)    # (B, 1536)
         return self.fc(x)
+
 
 
 # ------------------ Basic ResNet Blocks ------------------
