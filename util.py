@@ -433,9 +433,11 @@ def load_data_n_model(dataset_name, model_name, root):
         train_set = MyCSIDataset(x_path.format('train'), y_path.format('train'))
         val_set   = MyCSIDataset(x_path.format('val'),   y_path.format('val'))
         test_set  = MyCSIDataset(x_path.format('test'),  y_path.format('test'))
+        
+        # merge val and test set for final evaluation
+        test_set  = ConcatDataset([val_set, test_set])
 
         train_loader = DataLoader(train_set, batch_size=64, shuffle=True, num_workers=2)
-        val_loader   = DataLoader(val_set, batch_size=128, shuffle=False, num_workers=2)
         test_loader  = DataLoader(test_set, batch_size=128, shuffle=False, num_workers=2)
 
         num_classes = classes['MyDataset']
@@ -446,10 +448,9 @@ def load_data_n_model(dataset_name, model_name, root):
         elif model_name == 'GRU':
             print("using model: GRU")
             model = MyData_GRU(num_classes, input_dim=4004, reduced_dim=512, hidden_dim=128)
-        # same idea for ResNet, CNN+GRU, etc.
 
         train_epoch = 30
-        return train_loader, val_loader, test_loader, model, train_epoch
+        return train_loader, test_loader, model, train_epoch
 
 
 
