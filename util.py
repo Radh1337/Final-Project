@@ -434,11 +434,21 @@ def load_data_n_model(dataset_name, model_name, root):
         val_set   = MyCSIDataset(x_path.format('val'),   y_path.format('val'))
         test_set  = MyCSIDataset(x_path.format('test'),  y_path.format('test'))
         
+        # Print label distribution for train/val/test
+        print("Train label distribution:", np.bincount(train_set.labels))
+        print("Val label distribution:", np.bincount(val_set.labels))
+        print("Test label distribution:", np.bincount(test_set.labels))
+
         # merge val and test set for final evaluation
         test_set  = ConcatDataset([val_set, test_set])
 
         train_loader = DataLoader(train_set, batch_size=64, shuffle=True, num_workers=2)
         test_loader  = DataLoader(test_set, batch_size=128, shuffle=False, num_workers=2)
+
+        # Print a batch of labels from the train loader
+        for _, y in train_loader:
+            print("Sample batch labels:", y)
+            break
 
         num_classes = classes['MyDataset']
 
