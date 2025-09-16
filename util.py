@@ -457,7 +457,7 @@ def load_data_n_model(dataset_name, model_name, root):
             model = MyData_LeNet(num_classes)
         elif model_name == 'GRU':
             print("using model: GRU")
-            model = MyData_GRU(num_classes, input_dim=4004, reduced_dim=512, hidden_dim=128)
+            model = MyData_GRU(num_classes)
 
         train_epoch = 30
         return train_loader, test_loader, model, train_epoch
