@@ -170,7 +170,7 @@ def MyData_ResNet101(num_classes):
 #         return self.fc(h_n[-1])
 
 class MyData_GRU(nn.Module):
-    def __init__(self, num_classes, input_dim=(1000,4004), reduced_dim=512, hidden_dim=128):
+    def __init__(self, num_classes, input_dim=4004, reduced_dim=512, hidden_dim=128):
         super().__init__()
         self.reduce = nn.Linear(input_dim, reduced_dim)
         self.gru = nn.GRU(input_size=reduced_dim, hidden_size=hidden_dim, num_layers=1, batch_first=True)
