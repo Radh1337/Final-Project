@@ -455,9 +455,18 @@ def load_data_n_model(dataset_name, model_name, root):
         if model_name == 'LeNet':
             print("using model: LeNet")
             model = MyData_LeNet(num_classes)
+        elif model_name == 'MLP':
+            print("using model: MLP")
+            model = MyData_MLP(num_classes)
         elif model_name == 'GRU':
             print("using model: GRU")
             model = MyData_GRU(num_classes)
+        elif model_name == 'RNN+SNN':
+            print("using model: RNN+SNN (norse)")
+            model = MyData_RNN_SNN(num_classes)
+        elif model_name == 'snnTorchSNN':
+            print("using model: SNN (snnTorch)")
+            model = MyData_snnTorchSNN(num_classes)
 
         train_epoch = 30
         return train_loader, test_loader, model, train_epoch

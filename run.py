@@ -83,7 +83,7 @@ def main():
     root = '/content/gdrive/MyDrive/Data/'
     parser = argparse.ArgumentParser('WiFi Imaging Benchmark')
     parser.add_argument('--dataset', choices = ['UT_HAR_data','NTU-Fi-HumanID','NTU-Fi_HAR','Widar', 'MyDataset'])
-    parser.add_argument('--model', choices = ['MLP','LeNet','ResNet18','ResNet50','ResNet101','RNN','GRU','LSTM','BiLSTM', 'CNN+GRU','ViT', 'SNN'])
+    parser.add_argument('--model', choices = ['MLP','LeNet','ResNet18','ResNet50','ResNet101','RNN','GRU','LSTM','BiLSTM', 'CNN+GRU','ViT', 'RNN+SNN', 'snnTorchSNN'])
     args = parser.parse_args()
 
     train_loader, test_loader, model, train_epoch = load_data_n_model(args.dataset, args.model, root)

@@ -1,8 +1,25 @@
 import torch
 import torch.nn as nn
+import snnTorch as snn
 from norse.torch.module.lif import LIFRecurrentCell
 from norse.torch import LICell, LIFParameters
 import torch.nn.functional as F
+
+class MyData_MLP(nn.Module):
+    def __init__(self, num_classes):
+        super(MyData_MLP,self).__init__()
+        self.fc = nn.Sequential(
+            nn.Linear(400*4004,1024),
+            nn.ReLU(),
+            nn.Linear(1024,128),
+            nn.ReLU(),
+            nn.Linear(128,num_classes)
+        )
+        
+    def forward(self,x):
+        x = x.view(x.size(0), -1)
+        x = self.fc(x)
+        return x
 
 # ------------------ LeNet ------------------
 # class MyData_LeNet(nn.Module):
@@ -240,49 +257,103 @@ class MyData_CNN_GRU(nn.Module):
 
 
 # ---------------------- SNN ----------------------
-class MyData_SNN(nn.Module):
-    def __init__(self, num_classes, dt=0.001):
-        super(MyData_SNN, self).__init__()
+# class MyData_SNN(nn.Module):
+#     def __init__(self, num_classes, dt=0.001):
+#         super(MyData_SNN, self).__init__()
 
-        self.encoder = nn.Sequential(
-            nn.Conv2d(1, 32, 5, stride=2),  # (1, 64, 64) → (32, 30, 30)
-            nn.ReLU(),
-            nn.Conv2d(32, 64, 3),           # (64, 28, 28)
-            nn.ReLU(),
-            nn.MaxPool2d(2),                # (64, 14, 14)
-            nn.Conv2d(64, 96, 3),           # (96, 12, 12)
-            nn.ReLU()
-        )
+#         self.encoder = nn.Sequential(
+#             nn.Conv2d(1, 32, 5, stride=2),  # (1, 64, 64) → (32, 30, 30)
+#             nn.ReLU(),
+#             nn.Conv2d(32, 64, 3),           # (64, 28, 28)
+#             nn.ReLU(),
+#             nn.MaxPool2d(2),                # (64, 14, 14)
+#             nn.Conv2d(64, 96, 3),           # (96, 12, 12)
+#             nn.ReLU()
+#         )
 
-        with torch.no_grad():
-            dummy = torch.zeros(1, 1, 64, 64)
-            enc = self.encoder(dummy)
-            self.flattened_size = enc.view(1, -1).shape[1]
+#         with torch.no_grad():
+#             dummy = torch.zeros(1, 1, 64, 64)
+#             enc = self.encoder(dummy)
+#             self.flattened_size = enc.view(1, -1).shape[1]
 
+#         self.recurrent = LIFRecurrentCell(
+#             input_size=self.flattened_size,
+#             hidden_size=128,
+#             p=LIFParameters(alpha=10.0, v_th=torch.tensor(0.4)),
+#             dt=dt
+#         )
+
+#         self.readout_fc = nn.Linear(128, num_classes)
+#         self.readout_cell = LICell(dt=dt)
+
+#     def forward(self, x):  # x: (B, T, 1, 64, 64)
+#         B, T, C, H, W = x.shape
+#         s_recur = s_read = None
+#         voltages = []
+
+#         for t in range(T):
+#             frame = x[:, t]                  # (B, 1, 64, 64)
+#             z = self.encoder(frame)         # (B, conv_features)
+#             z = z.view(B, -1)
+#             z, s_recur = self.recurrent(z, s_recur)
+#             z = self.readout_fc(z)
+#             vo, s_read = self.readout_cell(z, s_read)
+#             voltages.append(vo)
+
+#         voltages = torch.stack(voltages)       # (T, B, num_classes)
+#         output, _ = torch.max(voltages, dim=0) # (B, num_classes)
+#         return F.log_softmax(output, dim=1)
+
+class MyData_RNN_SNN(nn.Module):
+    def __init__(self, num_classes, input_dim=4004, reduced_dim=512, hidden_dim=128, dt=0.001):
+        super().__init__()
+        self.reduce = nn.Linear(input_dim, reduced_dim)
         self.recurrent = LIFRecurrentCell(
-            input_size=self.flattened_size,
-            hidden_size=128,
+            input_size=reduced_dim,
+            hidden_size=hidden_dim,
             p=LIFParameters(alpha=10.0, v_th=torch.tensor(0.4)),
             dt=dt
         )
-
-        self.readout_fc = nn.Linear(128, num_classes)
+        self.readout_fc = nn.Linear(hidden_dim, num_classes)
         self.readout_cell = LICell(dt=dt)
 
-    def forward(self, x):  # x: (B, T, 1, 64, 64)
-        B, T, C, H, W = x.shape
+    def forward(self, x):  # x: (B, T, 4004)
+        B, T, feature = x.shape
         s_recur = s_read = None
         voltages = []
 
         for t in range(T):
-            frame = x[:, t]                  # (B, 1, 64, 64)
-            z = self.encoder(frame)         # (B, conv_features)
-            z = z.view(B, -1)
+            z = self.reduce(x[:, t])           # (B, reduced_dim)
             z, s_recur = self.recurrent(z, s_recur)
             z = self.readout_fc(z)
             vo, s_read = self.readout_cell(z, s_read)
             voltages.append(vo)
 
-        voltages = torch.stack(voltages)       # (T, B, num_classes)
-        output, _ = torch.max(voltages, dim=0) # (B, num_classes)
+        voltages = torch.stack(voltages)         # (T, B, num_classes)
+        output, _ = torch.max(voltages, dim=0)   # (B, num_classes)
         return F.log_softmax(output, dim=1)
+
+class MyData_snnTorchSNN(nn.Module):
+    def __init__(self, num_classes, input_dim=4004, reduced_dim=512, hidden_dim=128, beta=0.9):
+        super().__init__()
+        self.reduce = nn.Linear(input_dim, reduced_dim)
+        self.fc1 = nn.Linear(reduced_dim, hidden_dim)
+        self.lif1 = snn.Leaky(beta=beta)
+        self.fc2 = nn.Linear(hidden_dim, num_classes)
+        self.lif2 = snn.Leaky(beta=beta)
+
+    def forward(self, x):  # x: (B, T, 4004)
+        mem1 = self.lif1.init_leaky()
+        mem2 = self.lif2.init_leaky()
+        spk2_sum = 0
+
+        for t in range(x.size(1)):
+            z = self.reduce(x[:, t])      # (B, reduced_dim)
+            cur1 = self.fc1(z)
+            spk1, mem1 = self.lif1(cur1, mem1)
+            cur2 = self.fc2(spk1)
+            spk2, mem2 = self.lif2(cur2, mem2)
+            spk2_sum += spk2
+
+        # Optionally use spike count or max membrane potential for classification
+        return F.log_softmax(spk2_sum, dim=1)
