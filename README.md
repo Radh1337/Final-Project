@@ -5,7 +5,7 @@
 # Final Year Project: CSI Based WiFi Sensing for HAR with RSNN
 ## Introduction
 A final year project to finish my undergrad based on SenseFi. 
-SenseFi is the first open-source benchmark and library for WiFi CSI human sensing, implemented by PyTorch. The state-of-the-art networks, including MLP, CNN, RNN, Transformers, etc, are evaluated on four public datasets across different WiFi CSI platforms. The details are illustrated in our paper [*SenseFi: A Library and Benchmark on Deep-Learning-Empowered WiFi Human Sensing*](https://arxiv.org/abs/2207.07859) that has been accepted by Patterns, Cell Press.
+SenseFi is the first open-source benchmark and library for WiFi CSI human sensing, implemented by PyTorch. The state-of-the-art networks, including MLP, CNN, RNN, Transformers, etc, are evaluated on four public datasets across different WiFi CSI platforms. The details are illustrated in their paper [*SenseFi: A Library and Benchmark on Deep-Learning-Empowered WiFi Human Sensing*](https://arxiv.org/abs/2207.07859) that has been accepted by Patterns, Cell Press.
 
 ```
 @article{yang2023benchmark,
