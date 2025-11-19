@@ -2,8 +2,9 @@
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-YES-green.svg)](https://github.com/Marsrocky/Awesome-WiFi-CSI-Sensing/graphs/commit-activity)
 ![Ask Me Anything !](https://img.shields.io/badge/Ask%20me-anything-1abc9c.svg)
 [![DOI](https://zenodo.org/badge/511110383.svg)](https://zenodo.org/badge/latestdoi/511110383)
-# SenseFi: A Benchmark for WiFi CSI Sensing
+# Final Year Project: CSI Based WiFi Sensing for HAR with RSNN
 ## Introduction
+A final year project to finish my undergrad based on SenseFi. 
 SenseFi is the first open-source benchmark and library for WiFi CSI human sensing, implemented by PyTorch. The state-of-the-art networks, including MLP, CNN, RNN, Transformers, etc, are evaluated on four public datasets across different WiFi CSI platforms. The details are illustrated in our paper [*SenseFi: A Library and Benchmark on Deep-Learning-Empowered WiFi Human Sensing*](https://arxiv.org/abs/2207.07859) that has been accepted by Patterns, Cell Press.
 
 ```
